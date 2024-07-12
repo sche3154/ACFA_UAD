@@ -10,7 +10,7 @@ import os
 import itertools
 
 
-class ACAFUADModel(BaseModel):
+class UdADModel(BaseModel):
 
     def __init__(self,opt):
 
