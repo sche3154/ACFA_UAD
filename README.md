@@ -25,8 +25,8 @@ Official PyTorch implementation of UdAD-AC: Unsupervised artifacts detection in 
 **Train**
 Please refer to the training script in the scripts folder
 ```
-python3 /home/sheng/UdAD/train.py \
---dataroot /home/jack/data/HCP/ \
+python3 /home/XXXX_1/UdAD/train.py \
+--dataroot /home/XXXX_2/data/HCP/ \
 --checkpoints_dir /home/sheng/UdAD/checkpoints \
 --name hcpUdAD_100 \
 --dataset_mode hcpUAD \
@@ -48,8 +48,8 @@ python3 /home/sheng/UdAD/train.py \
 **Test**
 Please refer to the testing script in the scripts folder
 ```
-python3 /home/sheng/UdAD/test.py \
---dataroot /home/jack/data/HCP/ \
+python3 /home/XXXX_1/UdAD/test.py \
+--dataroot /home/XXXX_2/data/HCP/ \
 --checkpoints_dir /home/sheng/UdAD/checkpoints \
 --results_dir /home/sheng/UdAD/results \
 --eval \
