@@ -24,50 +24,9 @@ Official PyTorch implementation of UdAD-AC: Unsupervised artifacts detection in 
 
 **Train**
 Please refer to the training script in the scripts folder
-```
-python3 /home/XXXX_1/UdAD/train.py \
---dataroot /home/XXXX_2/data/HCP/ \
---checkpoints_dir /home/sheng/UdAD/checkpoints \
---name hcpUdAD_100 \
---dataset_mode hcpUAD \
---num_threads 1 \
---batch_size 1 \
---input_patch_size -1 \
---data_norm instance_norm_3D \
---model UdAD \
---input_nc 7  \
---output_nc 1  \
---output_nc2 2  \
---cnum 8 \
---n_epochs 100 \
---n_epochs_decay 0 \
---save_epoch_freq 5 \
---gpu_ids 0
-```
+
 
 **Test**
 Please refer to the testing script in the scripts folder
-```
-python3 /home/XXXX_1/UdAD/test.py \
---dataroot /home/XXXX_2/data/HCP/ \
---checkpoints_dir /home/sheng/UdAD/checkpoints \
---results_dir /home/sheng/UdAD/results \
---eval \
---name hcpUdAD_100 \
---epoch latest \
---dataset_mode hcpUAD \
---num_threads 0 \
---serial_batches \
---batch_size 1 \
---input_patch_size -1 \
---data_norm instance_norm_3D \
---model UdAD \
---input_nc 7 \
---output_nc 1 \
---cnum 8 \
---num_test 50 \
---save_prediction 1 \
---gpu_ids 1
-```
 
 <!-- Our code framework heavily brought from [CycleGAN](https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix). We appreciate the authors for their contributions on a great open-source framework of deep adversarial learning! -->
