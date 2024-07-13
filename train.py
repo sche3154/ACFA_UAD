@@ -76,5 +76,6 @@ if __name__ == '__main__':         # SIngle sample cropped, no pre-loaded batche
             model.save_networks('latest')
             model.save_networks(epoch)
     
+    model.save_stats()
     print('End of training')
     recorder.close()

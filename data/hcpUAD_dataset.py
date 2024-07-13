@@ -12,7 +12,7 @@ class HCPUADDataset(BaseDataset):
         BaseDataset.__init__(self,opt)
 
         if self.opt.isTrain:
-            hcp_split_path = os.path.join(self.root, 'HCP_list_split_80_20.pickle')
+            hcp_split_path = os.path.join(self.root, 'HCP_list_split_50_50.pickle')
             self.sample_list = get_HCPsamples(hcp_split_path, train = self.opt.isTrain)
         else:
             hcp_split_path = os.path.join('/home/sheng/data'
@@ -22,7 +22,6 @@ class HCPUADDataset(BaseDataset):
         self.io = create_io('hcpUAD', opt)
         self.processing = create_prcoessing('UAD', opt)
 
-        # self.sample_list = ['159340', '211720', '147737', '672756', '103818', '100307']
 
     def __len__(self):
         """Return the total number of images in the dataset."""

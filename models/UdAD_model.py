@@ -1,7 +1,7 @@
 from models.base_model import BaseModel
 from models.nets import init_net
-from model.nets.gen_net import GenNet
-from model.nets.dis_net import DisNet
+from models.nets.gen_net import GenNet
+from models.nets.dis_net import DisNet
 
 import torch.nn as nn
 import torch
@@ -20,16 +20,17 @@ class UdADModel(BaseModel):
         self.loss_names = ['gen','adv']
 
         self.sig = nn.Sigmoid()
+        self.con_losses = []
 
         if self.isTrain:
-            self.net_genA = init_net(GenNet(7,16,1), opt.init_type, opt.init_gain, opt.gpu_ids)
-            self.net_genB = init_net(GenNet(1,16,2), opt.init_type, opt.init_gain, opt.gpu_ids)
+            self.net_genA = init_net(GenNet(opt.input_nc,opt.cnum,opt.output_nc), opt.init_type, opt.init_gain, opt.gpu_ids)
+            self.net_genB = init_net(GenNet(opt.output_nc,opt.cnum,opt.output_nc2), opt.init_type, opt.init_gain, opt.gpu_ids)
 
-            self.net_disA = init_net(DisNet(1,16,1), opt.init_type, opt.init_gain, opt.gpu_ids)
-            self.net_disB = init_net(DisNet(2,16,1), opt.init_type, opt.init_gain, opt.gpu_ids)
+            self.net_disA = init_net(DisNet(opt.output_nc,opt.cnum,opt.output_nc), opt.init_type, opt.init_gain, opt.gpu_ids)
+            self.net_disB = init_net(DisNet(opt.output_nc2,opt.cnum,opt.output_nc), opt.init_type, opt.init_gain, opt.gpu_ids)
 
-            self.real_label = torch.ones(size=(self.opt.batchsize, 1), dtype=torch.float32, device=self.device)
-            self.fake_label = torch.zeros(size=(self.opt.batchsize, 1), dtype=torch.float32, device=self.device)
+            self.real_label = torch.ones(size=(self.opt.batch_size, 1), dtype=torch.float32, device=self.device)
+            self.fake_label = torch.zeros(size=(self.opt.batch_size, 1), dtype=torch.float32, device=self.device)
 
             self.optimizer_G = torch.optim.Adam(itertools.chain(self.net_genA.parameters(), self.net_genB.parameters()))
             self.optimizer_D = torch.optim.Adam(itertools.chain(self.net_disA.parameters(), self.net_disB.parameters()))
@@ -41,6 +42,11 @@ class UdADModel(BaseModel):
             self.optimizers.append(self.optimizer_D)
         else:
             self.net_genA = init_net(GenNet(7,16,1), opt.init_type, opt.init_gain, opt.gpu_ids)
+
+    def modify_commandline_options(parser, is_train):
+
+        parser.add_argument('--output_nc2', type=int, default= 2 , help='# UdAD Cycle OUTPUT2')
+        return parser
 
     def set_input(self, input):
 
@@ -66,7 +72,7 @@ class UdADModel(BaseModel):
 
             self.central_dwis =  torch.cat([self.b0, torch.mean(self.dwis, dim=1, keepdim = True)], dim=1)
 
-            self.pred_x = self.net_disA(self.central_dwis)
+            self.pred_x = self.net_disB(self.central_dwis)
             self.pred_hat_x = self.net_disB(self.hat_x)
 
             self.central_dwis = self.central_dwis.permute(0,2,3,4,1)
@@ -77,7 +83,7 @@ class UdADModel(BaseModel):
         else:
             self.hat_fa, self.feats_a = self.net_genA(self.inputs)
 
-            return self.sig(self.hat_fa)
+            return {'pred':  self.sig(self.hat_fa)}
 
     def backward_g(self):
         
@@ -90,6 +96,9 @@ class UdADModel(BaseModel):
         self.loss_gen = 50*self.loss_con1 + 10*self.loss_con2 + self.loss_enc
 
         self.loss_gen.backward(retain_graph=True)
+
+        if self.current_epoch == self.opt.n_epochs:
+            self.con_losses.append(self.loss_con1.item()/50)
 
     def backward_d(self):
 
@@ -109,5 +118,13 @@ class UdADModel(BaseModel):
         self.optimizer_D.zero_grad()
         self.backward_d()
         self.optimizer_D.step()
+
+    def save_stats(self):
+        mu_loss = np.average(self.con_losses)
+        std = np.std(self.con_losses)
+
+        stats = [mu_loss, std]
+        file_path = os.path.join(self.opt.checkpoints_dir, self.opt.name, 'stats.npy')
+        np.save(file=file_path, arr= stats)
 
 

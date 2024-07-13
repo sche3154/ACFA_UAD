@@ -1,4 +1,4 @@
-from models.nets.updated_blocks import *
+from models.nets.blocks import *
 
 
 class DisNet(nn.Module):

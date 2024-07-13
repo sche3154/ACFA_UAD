@@ -4,7 +4,7 @@ import numpy as np
 import os
 import json
 
-class HCPUADProcessing(BaseProcessing):
+class UADProcessing(BaseProcessing):
 
     def __init__(self, opt):
         super().__init__(opt)
